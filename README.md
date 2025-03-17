@@ -1,33 +1,43 @@
-# JSON Value Extractor
+# JSON 值提取器
 
-A VSCode extension for extracting, sorting and analyzing JSON field values with statistics.
+一个简单的 VSCode 扩展，用于从 JSON 文件中提取指定字段的所有值并合并。
 
-## Features
+## 功能
 
-- Extract values of specified fields from JSON files
-- Support nested JSON structures
-- Automatic deduplication
-- Sorting options (ascending/descending)
-- Custom separators
-- Value statistics (occurrence counting)
-- Progress indication for large files
-- Chinese interface support
+- 从 JSON 文件中提取指定字段的所有值
+- 支持排序（升序/降序）
+- 支持自定义分隔符
+- 显示值的统计信息（出现次数等）
+- 支持大文件处理
 
-## Installation
+## 使用方法
 
-1. Download the `.vsix` file from the [releases page](https://github.com/InsaneLighter/json-value-extractor/releases)
-2. In VSCode, press `Ctrl+Shift+P`
-3. Type "Install from VSIX" and select the downloaded file
+1. 在 VSCode 中打开一个 JSON 文件
+2. 按下 `Ctrl+Shift+P`（Windows/Linux）或 `Cmd+Shift+P`（Mac）打开命令面板
+3. 输入 "提取 JSON 字段值" 并选择该命令
+4. 输入要提取的字段名
+5. 选择排序方式
+6. 输入分隔符（默认为逗号）
+7. 结果将在新标签页中显示
 
-## Usage
+## 安装
 
-1. Open any JSON file
-2. Press `Ctrl+Shift+P`
-3. Type "Extract JSON Field Values"
-4. Follow the prompts to:
-   - Enter the field name to extract
-   - Choose sorting method
-   - Set custom separator (default: comma)
-5. View results in a new tab
+1. 打开 VSCode
+2. 打开扩展面板（Ctrl+Shift+X）
+3. 搜索 "JSON 值提取器"
+4. 点击安装
 
-For detailed documentation, please see [DOCUMENTATION.md](DOCUMENTATION.md)
+## 卸载
+
+1. 打开 VSCode
+2. 打开扩展面板（Ctrl+Shift+X）
+3. 找到 "JSON 值提取器"
+4. 点击卸载
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT

@@ -8,16 +8,22 @@ function activate(context) {
             return;
         }
 
-        if (!editor.document.fileName.toLowerCase().endsWith('.json')) {
-            vscode.window.showErrorMessage('当前文件不是 JSON 文件！');
+        // 检查文件类型：通过文件扩展名或语言ID
+        const isJsonFile = editor.document.fileName.toLowerCase().endsWith('.json') || 
+                          editor.document.languageId === 'json' ||
+                          isValidJson(editor.document.getText());
+
+        if (!isJsonFile) {
+            vscode.window.showErrorMessage('当前文件不是有效的 JSON 文件！');
             return;
         }
 
         try {
+            // 添加文件大小检查
             const fileSize = Buffer.byteLength(editor.document.getText(), 'utf8');
             const fileSizeMB = fileSize / (1024 * 1024);
             
-            if (fileSizeMB > 5) {
+            if (fileSizeMB > 5) { // 如果文件大于5MB，显示进度提示
                 vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
                     title: "正在处理大文件...",
@@ -40,9 +46,11 @@ function activate(context) {
 }
 
 async function processJson(editor, progress = null) {
+    // 分块读取文件内容
     const documentText = editor.document.getText();
     const jsonContent = JSON.parse(documentText);
 
+    // 获取字段名
     const fieldName = await vscode.window.showInputBox({
         prompt: '请输入要提取的字段名',
         placeHolder: '例如：name'
@@ -52,6 +60,7 @@ async function processJson(editor, progress = null) {
         return;
     }
 
+    // 获取排序方式
     const sortOption = await vscode.window.showQuickPick([
         { label: '不排序', value: 'none' },
         { label: '升序排序', value: 'asc' },
@@ -64,6 +73,7 @@ async function processJson(editor, progress = null) {
         return;
     }
 
+    // 获取分隔符
     const separator = await vscode.window.showInputBox({
         prompt: '请输入分隔符',
         placeHolder: '默认为逗号(,)',
@@ -74,11 +84,13 @@ async function processJson(editor, progress = null) {
         return;
     }
 
+    // 使用 Map 存储值和出现次数
     const valueMap = new Map();
     
+    // 优化的递归函数，使用迭代器处理大型数组
     async function* processChunk(obj) {
         if (Array.isArray(obj)) {
-            const chunkSize = 1000;
+            const chunkSize = 1000; // 每次处理1000个元素
             for (let i = 0; i < obj.length; i += chunkSize) {
                 const chunk = obj.slice(i, i + chunkSize);
                 for (const item of chunk) {
@@ -87,11 +99,13 @@ async function processJson(editor, progress = null) {
                 if (progress) {
                     progress.report({ increment: (i / obj.length) * 100 });
                 }
+                // 让出控制权，避免阻塞UI
                 await new Promise(resolve => setTimeout(resolve, 0));
             }
         } else if (obj && typeof obj === 'object') {
             for (const [key, value] of Object.entries(obj)) {
                 if (key === fieldName) {
+                    // 统计值的出现次数
                     valueMap.set(value, (valueMap.get(value) || 0) + 1);
                 }
                 yield* processChunk(value);
@@ -99,10 +113,12 @@ async function processJson(editor, progress = null) {
         }
     }
 
+    // 处理 JSON 内容
     for await (const _ of processChunk(jsonContent)) {
         // 迭代器处理中
     }
 
+    // 处理排序
     let values = Array.from(valueMap.entries());
     if (sortOption.value === 'asc') {
         values.sort(([a], [b]) => String(a).localeCompare(String(b)));
@@ -110,12 +126,14 @@ async function processJson(editor, progress = null) {
         values.sort(([a], [b]) => String(b).localeCompare(String(a)));
     }
 
+    // 生成结果
     const resultLines = [
         '提取结果：',
         '-'.repeat(20),
         ...values.map(([value, count]) => `${value}${separator}出现 ${count} 次`)
     ];
 
+    // 生成统计信息
     const stats = {
         total: values.length,
         totalOccurrences: Array.from(valueMap.values()).reduce((a, b) => a + b, 0)
@@ -129,6 +147,7 @@ async function processJson(editor, progress = null) {
         `- 所有值：${values.map(([v]) => v).join(separator)}`
     );
 
+    // 创建新文档显示结果
     const resultDocument = await vscode.workspace.openTextDocument({
         content: resultLines.join('\n'),
         language: 'text'
