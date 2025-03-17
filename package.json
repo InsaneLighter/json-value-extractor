@@ -1,0 +1,36 @@
+{
+  "name": "json-value-extractor",
+  "displayName": "JSON Value Extractor",
+  "description": "从 JSON 文件中提取指定字段的所有值并合并",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.extractJsonValues",
+        "title": "提取 JSON 字段值"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "keywords": ["json", "extract", "merge", "vscode"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InsaneLighter/json-value-extractor"
+  },
+  "dependencies": {
+    "@types/vscode": "^1.60.0"
+  }
+}
